@@ -7,7 +7,7 @@ console.log('HackDay Image Colorizer')
 
 const state = {
   canvas: null,
-  renderFactor: 10,
+  renderFactor: 35,
 };
 
 canva.onReady(async (opts) => {
@@ -21,7 +21,7 @@ canva.onReady(async (opts) => {
 canva.onControlsEvent(async (opts) => {
   console.log('on controls event', opts);
   if (opts.message.controlId === 'renderFactor') {
-    state['renderFactor'] = opts.message.message.value;
+    state['renderFactor'] = opts.message.message['value'];
 
     if (opts.message.commit) {
       renderControls();
@@ -48,7 +48,7 @@ canva.onControlsEvent(async (opts) => {
     context.drawImage(img, 0, 0, state.canvas.width, state.canvas.height);
 
     // Hide the loading spinner
-    canva.toggleSpinner('preview', false); // tmp
+    canva.toggleSpinner('preview', false);
   }
 });
 
@@ -74,9 +74,9 @@ function renderControls() {
   const controls = [
     canva.create(ControlName.SLIDER, {
       id: 'renderFactor',
-      label: 'Render Factor',
+      label: 'Color Accuracy',
       value: state.renderFactor,
-      min: 0,
+      min: 1,
       max: 35,
       step: 1,
     }),
