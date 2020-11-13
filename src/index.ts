@@ -7,6 +7,7 @@ console.log('HackDay Image Colorizer')
 
 const state = {
   canvas: null,
+  renderFactor: 10,
 };
 
 canva.onReady(async (opts) => {
@@ -19,28 +20,36 @@ canva.onReady(async (opts) => {
 
 canva.onControlsEvent(async (event) => {
   console.log('on controls event', event);
-  // Show the loading spinner
-  canva.toggleSpinner('preview', true);
+  if (opts.message.controlId === 'renderFactor') {
+    state['renderFactor'] = opts.message.message.value;
 
-
-  const settings = {
-    renderFactor: 35
+    if (opts.message.commit) {
+      renderControls();
+    }
   }
-  // Remotely process the user's image
-  console.log('starting remote process...')
-  const result = await canva.remoteProcess({
-    settings: JSON.stringify(settings)
-  });
-  console.log('result from remoteProcess', result)
-  const image = await imageHelpers.fromUrl(result.previewImage.url);
+  else if (opts.message.controlId === 'startRemoteImageProcessing') {
+    // Show the loading spinner
+    canva.toggleSpinner('preview', true);
 
-  // Render the processed image
-  const context = state.canvas.getContext('2d');
-  const img = await imageHelpers.toImageElement(image);
-  context.drawImage(img, 0, 0, state.canvas.width, state.canvas.height);
+    const settings = {
+      renderFactor: state['renderFactor']
+    }
+    // Remotely process the user's image
+    console.log('starting remote process...')
+    const result = await canva.remoteProcess({
+      settings: JSON.stringify(settings)
+    });
+    console.log('result from remoteProcess', result)
+    const image = await imageHelpers.fromUrl(result.previewImage.url);
 
-  // Hide the loading spinner
-  canva.toggleSpinner('preview', false); // tmp
+    // Render the processed image
+    const context = state.canvas.getContext('2d');
+    const img = await imageHelpers.toImageElement(image);
+    context.drawImage(img, 0, 0, state.canvas.width, state.canvas.height);
+
+    // Hide the loading spinner
+    canva.toggleSpinner('preview', false); // tmp
+  }
 });
 
 
@@ -63,6 +72,14 @@ canva.onSaveRequest(async () => {
 
 function renderControls() {
   const controls = [
+    canva.create(ControlName.SLIDER, {
+      id: 'renderFactor',
+      label: 'Render Factor',
+      value: state.renderFactor,
+      min: 0,
+      max: 35,
+      step: 1,
+    }),
     canva.create(ControlName.BUTTON, {
       id: 'startRemoteImageProcessing',
       label: 'Colorize your image',
