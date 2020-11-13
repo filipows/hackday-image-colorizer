@@ -18,8 +18,8 @@ canva.onReady(async (opts) => {
   renderControls();
 });
 
-canva.onControlsEvent(async (event) => {
-  console.log('on controls event', event);
+canva.onControlsEvent(async (opts) => {
+  console.log('on controls event', opts);
   if (opts.message.controlId === 'renderFactor') {
     state['renderFactor'] = opts.message.message.value;
 
